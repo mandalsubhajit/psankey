@@ -34,6 +34,8 @@ source, target, value, color(optional), alpha(optional)
 
 Example:
 ```
+data1.csv
+
 source,target,value,color,alpha
 B,E,20,,
 C,E,20,,
