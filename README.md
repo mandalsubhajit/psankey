@@ -26,6 +26,11 @@ pip install psankey
 
 ### Documentation
 
+**Input Data Format**
+
+A dataframe of links with the following columns (first 3 mandatory, rest optional):
+source, target, value, color(optional), alpha(optional)
+
 **Usage**
 
 ```python
@@ -37,6 +42,9 @@ df = pd.read_csv('data/data1.csv')
 fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodealpha=0.5, nodeedgecolor='white')
 plt.show()
 ```
+
+**Parameters**
+
 
 ### Sample Output
 
