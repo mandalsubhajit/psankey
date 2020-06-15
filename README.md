@@ -38,6 +38,12 @@ fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsi
 plt.show()
 ```
 
+### Sample Output
+
+<img src="https://github.com/mandalsubhajit/psankey/blob/master/output/sankey1.png" width="1000">
+
+<img src="https://github.com/mandalsubhajit/psankey/blob/master/output/sankey2.png" width="1000">
+
 ## Citing **pSankey**
 
 To cite the library if you use it in scientific publications (or anywhere else, if you wish), please use the link to the GitHub repository (https://github.com/mandalsubhajit/pSankey). Thank you!
