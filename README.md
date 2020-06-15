@@ -29,7 +29,20 @@ pip install psankey
 **Input Data Format**
 
 A dataframe of links with the following columns (first 3 mandatory, rest optional):
+
 source, target, value, color(optional), alpha(optional)
+
+Example:
+```
+source,target,value,color,alpha
+B,E,20,,
+C,E,20,,
+C,D,20,,
+B,A,20,,
+E,D,20,,
+E,A,20,,
+D,A,40,orange,0.85
+```
 
 **Usage**
 
