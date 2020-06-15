@@ -1,4 +1,4 @@
-<img src="https://github.com/mandalsubhajit/psankey/blob/master/pSankey.png" width="200">
+<img src="https://github.com/mandalsubhajit/psankey/blob/master/pSankey.png" width="100">
 
 
 # psankey - A module for plotting Sankey flow diagrams in Python
