@@ -1,4 +1,4 @@
-<img src="https://github.com/mandalsubhajit/venndata/blob/master/pSankey.png" width="200">
+<img src="https://github.com/mandalsubhajit/psankey/blob/master/pSankey.png" width="200">
 
 
 # psankey - A module for plotting Sankey flow diagrams in Python
@@ -28,11 +28,14 @@ pip install psankey
 
 **Usage**
 
-Start by importing the modules.
 ```python
 from psankey.sankey import sankey
 import pandas as pd
 import matplotlib.pyplot as plt
+
+df = pd.read_csv('data/data1.csv')
+fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodealpha=0.5, nodeedgecolor='white')
+plt.show()
 ```
 
 ## Citing **pSankey**
