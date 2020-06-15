@@ -1,0 +1,11 @@
+source,target,value
+Pclass1,female,94
+Pclass1,male,122
+Pclass2,female,76
+Pclass2,male,108
+Pclass3,female,144
+Pclass3,male,347
+female,Died,81
+female,Survived,233
+male,Died,468
+male,Survived,109
