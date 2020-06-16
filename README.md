@@ -26,7 +26,7 @@ pip install psankey
 
 ### Documentation
 
-**Input Data Format**
+#### Input Data Format
 
 A dataframe of links with the following columns (first 3 mandatory, rest optional):
 
@@ -46,7 +46,7 @@ E,A,20,,
 D,A,40,orange,0.85
 ```
 
-**Usage**
+#### Usage
 
 ```python
 from psankey.sankey import sankey
@@ -58,9 +58,23 @@ fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsi
 plt.show()
 ```
 
-**Parameters**
+#### Parameters
 
-To be updated...
+**df:** _pandas dataframe_. DataFrame with the links. Required columns: source, target, value. Optional columns: color, alpha.
+
+**aspect_ratio:** _float, default: 4/3_. aspect ratio of the figure.
+
+**nodelabels:** _boolean, default: True_. whether node labels shoud be plotted.
+
+**linklabels:** _boolean, default: True_. whether link labels shoud be plotted.
+
+**labelsize:** _int, default: 5_. font size of the labels.
+
+**nodecmap:** _default: None_. colormap of the nodes. To learn more: https://matplotlib.org/3.2.1/tutorials/colors/colormaps.html
+
+**nodealpha:** _float, default=0.5_. alpha of the nodes, between 0 (100% transparent) and 1 (0% transparent).
+
+**nodeedgecolor:** _default: 'white'_. color of the border of the nodes.
 
 ### Sample Output
 
