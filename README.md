@@ -64,9 +64,9 @@ plt.show()
 
 **aspect_ratio:** _float, default: 4/3_. aspect ratio of the figure.
 
-**nodelabels:** _boolean, default: True_. whether node labels shoud be plotted.
+**nodelabels:** _boolean, default: True_. whether node labels should be plotted.
 
-**linklabels:** _boolean, default: True_. whether link labels shoud be plotted.
+**linklabels:** _boolean, default: True_. whether link labels should be plotted.
 
 **labelsize:** _int, default: 5_. font size of the labels.
 
