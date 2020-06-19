@@ -37,6 +37,8 @@ A dataframe of links with the following columns (first 3 required, rest optional
 **alpha:**   _optional_. alpha (opaqueness) of the link
 
 Example:
+
+Input:<br/>
 ```
 data1.csv
 
@@ -49,6 +51,8 @@ E,D,20,,
 E,A,20,,
 D,A,40,orange,0.85
 ```
+Output:<br/>
+<img src="https://github.com/mandalsubhajit/psankey/blob/master/output/sankey1.png" width="1000">
 
 #### Usage
 
