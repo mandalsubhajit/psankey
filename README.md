@@ -28,9 +28,13 @@ pip install psankey
 
 #### Input Data Format
 
-A dataframe of links with the following columns (first 3 mandatory, rest optional):
+A dataframe of links with the following columns (first 3 required, rest optional):
 
-source, target, value, color(optional), alpha(optional)
+**source:**  name of source node<br/>
+**target:**  name of target node<br/>
+**value:**   value (width or breadth) of the link<br/>
+**color:**   _optional_. color of the link<br/>
+**alpha:**   _optional_. alpha (opaqueness) of the link
 
 Example:
 ```
