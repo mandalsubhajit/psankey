@@ -62,7 +62,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 df = pd.read_csv('data/data1.csv')
-fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodealpha=0.5, nodeedgecolor='white')
+mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1)}
+fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
 plt.show()
 ```
 
@@ -70,19 +71,23 @@ plt.show()
 
 **df:** _pandas dataframe_. DataFrame with the links. Required columns: source, target, value. Optional columns: color, alpha.
 
-**aspect_ratio:** _float, default: 4/3_. aspect ratio of the figure.
+**aspect_ratio:** _float, default: 4/3_. Aspect ratio of the figure.
 
-**nodelabels:** _boolean, default: True_. whether node labels should be plotted.
+**nodelabels:** _boolean, default: True_. Whether node labels should be plotted.
 
-**linklabels:** _boolean, default: True_. whether link labels should be plotted.
+**linklabels:** _boolean, default: True_. Whether link labels should be plotted.
 
-**labelsize:** _int, default: 5_. font size of the labels.
+**labelsize:** _int, default: 5_. Font size of the labels.
 
-**nodecmap:** _default: None_. colormap of the nodes. To learn more: https://matplotlib.org/3.2.1/tutorials/colors/colormaps.html
+**nodecmap:** _default: None_. Colormap of the nodes. To learn more: https://matplotlib.org/3.2.1/tutorials/colors/colormaps.html
 
-**nodealpha:** _float, default=0.5_. alpha of the nodes, between 0 (100% transparent) and 1 (0% transparent).
+**nodecolorby:** _deafult:level_. Possible values:\['level'|'size'|'index'|any color e.g. 'blue']
+
+**nodealpha:** _float, default=0.5_. Alpha of the nodes, between 0 (100% transparent) and 1 (0% transparent).
 
 **nodeedgecolor:** _default: 'white'_. color of the border of the nodes.
+
+**nodemodifier:** _optional_. To be used if a few nodes need to be formatted selectively, overriding the nodecmap, nodecolorby, nodealpha & nodeedgecolor paramaters. Parameters can be passed as a dictionary as shown in example.
 
 ### Sample Output
 
