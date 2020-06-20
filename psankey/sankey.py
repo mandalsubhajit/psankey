@@ -78,7 +78,7 @@ def getNodesAndLinks(df, aspect_ratio):
 
 
 ''' Plot the sankey diagram '''
-def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodealpha=0.5, nodeedgecolor='white'):
+def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier={}):
     nodes, links = getNodesAndLinks(df, aspect_ratio)
     fig, ax = plt.subplots()
         
@@ -99,7 +99,7 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
         points += [(coord[0], coord[1]+link['value']) for coord in points[::-1]]
         
         if 'color' in df.columns:
-            linkcolor = link['color'] if pd.notnull(link['color']) else 'gray'
+            linkcolor = link['color'] if (pd.notnull(link['color']) and (link['color']!='')) else 'gray'
         else:
             linkcolor = 'gray'
         
@@ -116,8 +116,21 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
             ax.text(endx - nodes[nodes.name==link.target]['width'].min() * 0.2, endy + link['value'] / 2, str(link['value']), fontsize=labelsize, va='center', ha='right')
     
     # plot the nodes
-    nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in nodes.iterrows()]
-    pc = PatchCollection(nplots, cmap=nodecmap, array=nodes.depth, ec=nodeedgecolor, alpha=nodealpha)
+    cnodes = nodes[nodes.name.isin(list(nodemodifier.keys()))]
+    for i, row in cnodes.iterrows():
+        ax.add_patch(Rectangle((row['x'], row['y']), row['width'], row['height'], **nodemodifier[row['name']]))
+    
+    unodes = nodes[~nodes.name.isin(list(nodemodifier.keys()))]
+    nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in unodes.iterrows()]
+        
+    if nodecolorby=='level':
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, ec=nodeedgecolor, alpha=nodealpha)
+    elif nodecolorby=='size':
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, ec=nodeedgecolor, alpha=nodealpha)
+    elif nodecolorby=='index':
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, ec=nodeedgecolor, alpha=nodealpha)
+    elif type(nodecolorby)==str:
+        pc = PatchCollection(nplots, fc=nodecolorby, ec=nodeedgecolor, alpha=nodealpha)
     ax.add_collection(pc)
         
     # plot the node labels
