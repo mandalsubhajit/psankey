@@ -79,9 +79,9 @@ plt.show()
 
 **labelsize:** _int, default: 5_. Font size of the labels.
 
-**nodecmap:** _default: None_. Colormap of the nodes. To learn more: https://matplotlib.org/3.2.1/tutorials/colors/colormaps.html
+**nodecolorby:** _deafult:level_. Possible values:\['level'|'size'|'index'|any color e.g. 'blue'\]
 
-**nodecolorby:** _deafult:level_. Possible values:\['level'|'size'|'index'|any color e.g. 'blue']
+**nodecmap:** _default: None_. Colormap of the nodes, required if nodecolorby=\['level'|'size'|'index'\]. To learn more: https://matplotlib.org/3.2.1/tutorials/colors/colormaps.html
 
 **nodealpha:** _float, default=0.5_. Alpha of the nodes, between 0 (100% transparent) and 1 (0% transparent).
 
