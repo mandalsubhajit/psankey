@@ -147,7 +147,8 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
 
 ''' Usage Example '''
 if __name__ == '__main__':
-    df = pd.read_csv('../data/data2.csv')
-    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodealpha=0.5, nodeedgecolor='white')
-    plt.savefig('../output/sankey2.png', dpi=1200, transparent=False)
+    df = pd.read_csv('../data/data1.csv')
+    mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1)}
+    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+    plt.savefig('../output/sankey1.png', dpi=1200, transparent=False)
     plt.close()
