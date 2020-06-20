@@ -78,7 +78,7 @@ def getNodesAndLinks(df, aspect_ratio):
 
 
 ''' Plot the sankey diagram '''
-def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier={}):
+def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap=None, nodealpha=0.5, nodeedgecolor='white', nodemodifier={}):
     nodes, links = getNodesAndLinks(df, aspect_ratio)
     fig, ax = plt.subplots()
         
@@ -149,6 +149,6 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
 if __name__ == '__main__':
     df = pd.read_csv('../data/data1.csv')
     mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1)}
-    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
     plt.savefig('../output/sankey1.png', dpi=1200, transparent=False)
     plt.close()
