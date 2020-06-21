@@ -62,7 +62,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 df = pd.read_csv('data/data1.csv')
-mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1)}
+mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1')}
 fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
 plt.show()
 ```
