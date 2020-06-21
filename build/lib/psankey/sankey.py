@@ -78,7 +78,7 @@ def getNodesAndLinks(df, aspect_ratio):
 
 
 ''' Plot the sankey diagram '''
-def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodealpha=0.5, nodeedgecolor='white'):
+def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier={}):
     nodes, links = getNodesAndLinks(df, aspect_ratio)
     fig, ax = plt.subplots()
         
@@ -99,7 +99,7 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
         points += [(coord[0], coord[1]+link['value']) for coord in points[::-1]]
         
         if 'color' in df.columns:
-            linkcolor = link['color'] if pd.notnull(link['color']) else 'gray'
+            linkcolor = link['color'] if (pd.notnull(link['color']) and (link['color']!='')) else 'gray'
         else:
             linkcolor = 'gray'
         
@@ -116,13 +116,28 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
             ax.text(endx - nodes[nodes.name==link.target]['width'].min() * 0.2, endy + link['value'] / 2, str(link['value']), fontsize=labelsize, va='center', ha='right')
     
     # plot the nodes
-    nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in nodes.iterrows()]
-    pc = PatchCollection(nplots, cmap=nodecmap, array=nodes.depth, ec=nodeedgecolor, alpha=nodealpha)
+    cnodes = nodes[nodes.name.isin(list(nodemodifier.keys()))]
+    for i, row in cnodes.iterrows():
+        ax.add_patch(Rectangle((row['x'], row['y']), row['width'], row['height'], **nodemodifier[row['name']]))
+    
+    unodes = nodes[~nodes.name.isin(list(nodemodifier.keys()))]
+    nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in unodes.iterrows()]
+        
+    if nodecolorby=='level':
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, ec=nodeedgecolor, alpha=nodealpha)
+    elif nodecolorby=='size':
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, ec=nodeedgecolor, alpha=nodealpha)
+    elif nodecolorby=='index':
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, ec=nodeedgecolor, alpha=nodealpha)
+    elif type(nodecolorby)==str:
+        pc = PatchCollection(nplots, fc=nodecolorby, ec=nodeedgecolor, alpha=nodealpha)
     ax.add_collection(pc)
         
     # plot the node labels
     if nodelabels:
-        for i, row in nodes.iterrows():
+        for i, row in cnodes.iterrows():
+            ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, nodemodifier[row['name']]['label'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
+        for i, row in unodes.iterrows():
             ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, row['name'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
     
     plt.axis('scaled')
@@ -134,7 +149,8 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
 
 ''' Usage Example '''
 if __name__ == '__main__':
-    df = pd.read_csv('../data/data2.csv')
-    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodealpha=0.5, nodeedgecolor='white')
-    plt.savefig('../output/sankey2.png', dpi=1200, transparent=False)
+    df = pd.read_csv('../data/data1.csv')
+    mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1')}
+    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+    plt.savefig('../output/sankey1.png', dpi=1200, transparent=False)
     plt.close()

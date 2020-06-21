@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: psankey
-Version: 0.0.1
+Version: 0.1.1
 Summary: Package for plotting Sankey diagrams with Python
 Home-page: https://github.com/mandalsubhajit/psankey
 Author: Subhajit Mandal
 Author-email: mandalsubhajit@gmail.com
 License: UNKNOWN
-Description: <img src="https://github.com/mandalsubhajit/venndata/blob/master/pSankey.png" width="200">
+Description: <img src="https://github.com/mandalsubhajit/psankey/blob/master/pSankey.png" width="100">
         
         
         # psankey - A module for plotting Sankey flow diagrams in Python
@@ -16,36 +16,9 @@ Description: <img src="https://github.com/mandalsubhajit/venndata/blob/master/pS
         ## Brief description
         
         In data science, we often require to visualize flows in the form of a Sankey diagram. This module helps with that. Usage is very straightforward and customizable.
+        Documentation: https://github.com/mandalsubhajit/psankey
         
         **Note:** Does not work for cyclical graphs.
-        
-        ## Getting started
-        
-        ### Installation
-        
-        Directly from the source - clone this repo on local machine, open the shell, navigate to this directory and run:
-        ```
-        python setup.py install
-        ```
-        or through pip:
-        ```
-        pip install psankey
-        ```
-        
-        ### Documentation
-        
-        **Usage**
-        
-        Start by importing the modules.
-        ```python
-        from psankey.sankey import sankey
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        ```
-        
-        ## Citing **pSankey**
-        
-        To cite the library if you use it in scientific publications (or anywhere else, if you wish), please use the link to the GitHub repository (https://github.com/mandalsubhajit/pSankey). Thank you!
         
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
