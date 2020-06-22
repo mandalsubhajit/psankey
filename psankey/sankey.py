@@ -116,13 +116,20 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
             ax.text(endx - nodes[nodes.name==link.target]['width'].min() * 0.2, endy + link['value'] / 2, str(link['value']), fontsize=labelsize, va='center', ha='right')
     
     # plot the nodes
-    cnodes = nodes[nodes.name.isin(list(nodemodifier.keys()))]
-    for i, row in cnodes.iterrows():
-        ax.add_patch(Rectangle((row['x'], row['y']), row['width'], row['height'], **nodemodifier[row['name']]))
+    nodemod = {}
+    for k in list(nodemodifier):
+        nodemod[k] = nodemodifier[k].copy()
+        nodemod[k].pop('label', None)
+        if nodemod[k] == {}:
+            del nodemod[k]
     
-    unodes = nodes[~nodes.name.isin(list(nodemodifier.keys()))]
+    cnodes = nodes[nodes.name.isin(list(nodemod))]
+    for i, row in cnodes.iterrows():
+        ax.add_patch(Rectangle((row['x'], row['y']), row['width'], row['height'], **nodemod[row['name']]))
+    
+    unodes = nodes[~nodes.name.isin(list(nodemod))]
     nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in unodes.iterrows()]
-        
+    
     if nodecolorby=='level':
         pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, ec=nodeedgecolor, alpha=nodealpha)
     elif nodecolorby=='size':
@@ -132,11 +139,19 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
     elif type(nodecolorby)==str:
         pc = PatchCollection(nplots, fc=nodecolorby, ec=nodeedgecolor, alpha=nodealpha)
     ax.add_collection(pc)
-        
+    
     # plot the node labels
+    labelmod = {}
+    for k in list(nodemodifier):
+        if 'label' in nodemodifier[k]:
+            labelmod[k] = nodemodifier[k].copy()
+    
+    cnodes = nodes[nodes.name.isin(list(labelmod))]
+    unodes = nodes[~nodes.name.isin(list(labelmod))]
+    
     if nodelabels:
         for i, row in cnodes.iterrows():
-            ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, nodemodifier[row['name']]['label'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
+            ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, labelmod[row['name']]['label'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
         for i, row in unodes.iterrows():
             ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, row['name'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
     
