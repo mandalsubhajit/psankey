@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="psankey",
-    version="0.1.2",
+    version="0.1.3",
     author="Subhajit Mandal",
     author_email="mandalsubhajit@gmail.com",
     description="Package for plotting Sankey diagrams with Python",
