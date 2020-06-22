@@ -20,7 +20,7 @@ import pandas as pd
 ''' Compute how many predecessor nodes are "before" this node '''
 def computeNodeDepths(adj):    
     node_depth = np.zeros(adj.shape[0])
-    adjpower = (adj.to_numpy() > 0)
+    adjpower = (adj.values > 0)
     sumadj = adjpower.sum()
     while sumadj > 0:
         node_depth += (adjpower.sum(axis=1) > 0)
@@ -108,7 +108,7 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
         else:
             linkalpha = 0.5
         
-        connector = Polygon(points, fc=linkcolor, alpha=linkalpha)
+        connector = Polygon(points, facecolor=linkcolor, alpha=linkalpha)
         ax.add_patch(connector)
         
         # plot the link labels
@@ -131,13 +131,13 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
     nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in unodes.iterrows()]
     
     if nodecolorby=='level':
-        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif nodecolorby=='size':
-        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif nodecolorby=='index':
-        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif type(nodecolorby)==str:
-        pc = PatchCollection(nplots, fc=nodecolorby, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, facecolor=nodecolorby, edgecolor=nodeedgecolor, alpha=nodealpha)
     ax.add_collection(pc)
     
     # plot the node labels
