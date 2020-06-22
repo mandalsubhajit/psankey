@@ -146,13 +146,13 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
         if 'label' in nodemodifier[k]:
             labelmod[k] = nodemodifier[k].copy()
     
-    cnodes = nodes[nodes.name.isin(list(labelmod))]
-    unodes = nodes[~nodes.name.isin(list(labelmod))]
+    lcnodes = nodes[nodes.name.isin(list(labelmod))]
+    lunodes = nodes[~nodes.name.isin(list(labelmod))]
     
     if nodelabels:
-        for i, row in cnodes.iterrows():
+        for i, row in lcnodes.iterrows():
             ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, labelmod[row['name']]['label'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
-        for i, row in unodes.iterrows():
+        for i, row in lunodes.iterrows():
             ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, row['name'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
     
     plt.axis('scaled')
