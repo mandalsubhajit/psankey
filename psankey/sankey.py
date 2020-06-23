@@ -44,8 +44,9 @@ def computeNodePositions(df, aspect_ratio):
     nodes = pd.DataFrame({'name': adj.index})
     nodes['depth'] = computeNodeDepths(adj)
     nodes.sort_values(['depth', 'name'], inplace=True)
-    max_layer_height = df.merge(nodes, how='left', left_on='source', right_on='name').groupby('depth')['value'].sum().max()
-    frame_height = (1 + len(nodes) * vertical_gap_quotient) * max_layer_height
+    out_max, out_cnt_max = df.merge(nodes, how='inner', left_on='source', right_on='name').groupby('depth')['value'].agg(['sum', 'count']).max()
+    in_max, in_cnt_max = df.merge(nodes, how='inner', left_on='target', right_on='name').groupby('depth')['value'].agg(['sum', 'count']).max()
+    frame_height = max((1 + out_cnt_max * vertical_gap_quotient) * out_max, (1 + in_cnt_max * vertical_gap_quotient) * in_max)
     frame_width = frame_height * aspect_ratio
     
     nodes['inflow'] = nodes['name'].map(df.groupby('target')['value'].sum().to_dict()).fillna(0)
@@ -56,7 +57,7 @@ def computeNodePositions(df, aspect_ratio):
     nodes['y'] = 0
     for d in range(int(nodes.depth.max())+1):
         num_nodes = np.sum(nodes.depth == d)
-        nodes.loc[nodes.depth == d, 'y'] += (nodes[nodes.depth == d].shift(1)['height'].cumsum() + np.arange(num_nodes) * vertical_gap_quotient * max_layer_height).fillna(0)
+        nodes.loc[nodes.depth == d, 'y'] += (nodes[nodes.depth == d].shift(1)['height'].cumsum() + np.arange(num_nodes) * vertical_gap_quotient * max(in_max, out_max)).fillna(0)
     #nodes['y'] = -nodes['y']-nodes['height']
     
     return nodes
