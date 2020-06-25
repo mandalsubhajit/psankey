@@ -63,7 +63,7 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv('data/data1.csv')
 mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1')}
-fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+nodes, fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap='copper', nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
 plt.show()
 ```
 
@@ -79,7 +79,7 @@ plt.show()
 
 **labelsize:** _int, default: 5_. Font size of the labels.
 
-**nodecolorby:** _deafult:level_. Possible values:\['level'|'size'|'index'|any color e.g. 'blue'\]
+**nodecolorby:** _deafult:level_. Possible values:\['level'|'size'|'index'|dictionary mapping each node to a value|any color e.g. 'blue'\]
 
 **nodecmap:** _default: None_. Colormap of the nodes, required if nodecolorby=\['level'|'size'|'index'\]. To learn more: https://matplotlib.org/3.2.1/tutorials/colors/colormaps.html
 
