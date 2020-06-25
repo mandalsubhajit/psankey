@@ -159,7 +159,7 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
     plt.axis('scaled')
     plt.axis('off')
     
-    return fig, ax
+    return nodes.drop(['in_y', 'out_y'], axis=1), fig, ax
 
 
 
@@ -167,6 +167,6 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
 if __name__ == '__main__':
     df = pd.read_csv('../data/data1.csv')
     mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1')}
-    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+    nodes, fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
     plt.savefig('../output/sankey1.png', dpi=1200, transparent=False)
     plt.close()
