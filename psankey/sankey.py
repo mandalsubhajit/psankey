@@ -137,6 +137,12 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
         pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif nodecolorby=='index':
         pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, edgecolor=nodeedgecolor, alpha=nodealpha)
+    elif type(nodecolorby)==dict:
+        ncb = unodes.name.map(nodecolorby)
+        if pd.isnull(ncb).sum() > 0:
+            raise Exception('Need color mapping values for all nodes')
+        else:
+            pc = PatchCollection(nplots, cmap=nodecmap, array=ncb, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif type(nodecolorby)==str:
         pc = PatchCollection(nplots, facecolor=nodecolorby, edgecolor=nodeedgecolor, alpha=nodealpha)
     ax.add_collection(pc)
