@@ -34,7 +34,7 @@ def computeNodeDepths(adj):
 
 
 ''' Compute the nodes & their details from dataframe of links '''
-def computeNodePositions(df, aspect_ratio):
+def computeNodePositions(df, aspect_ratio, plotOrder, nodemodifier):
     # calculate adjacency matrix
     adj = pd.crosstab(df.target, df.source)
     idx = adj.columns.union(adj.index)
@@ -43,7 +43,8 @@ def computeNodePositions(df, aspect_ratio):
     vertical_gap_quotient = 0.05
     nodes = pd.DataFrame({'name': adj.index})
     nodes['depth'] = computeNodeDepths(adj)
-    nodes.sort_values(['depth', 'name'], inplace=True)
+    nodes['plotOrder'] = nodes.name.map(plotOrder)
+    nodes.sort_values(['depth', 'plotOrder'], inplace=True)
     out_max, out_cnt_max = df.merge(nodes, how='inner', left_on='source', right_on='name').groupby('depth')['value'].agg(['sum', 'count']).max()
     in_max, in_cnt_max = df.merge(nodes, how='inner', left_on='target', right_on='name').groupby('depth')['value'].agg(['sum', 'count']).max()
     frame_height = max((1 + out_cnt_max * vertical_gap_quotient) * out_max, (1 + in_cnt_max * vertical_gap_quotient) * in_max)
@@ -60,18 +61,24 @@ def computeNodePositions(df, aspect_ratio):
         nodes.loc[nodes.depth == d, 'y'] += (nodes[nodes.depth == d].shift(1)['height'].cumsum() + np.arange(num_nodes) * vertical_gap_quotient * max(in_max, out_max)).fillna(0)
     #nodes['y'] = -nodes['y']-nodes['height']
     
+    for k in list(nodemodifier):
+        if 'yPush' in nodemodifier[k]:
+            nodes.loc[nodes.name == k, 'y'] += nodemodifier[k]['yPush']
+    
     return nodes
 
 
 
 ''' Get node & link details from dataframe of links '''
-def getNodesAndLinks(df, aspect_ratio):
+def getNodesAndLinks(df, aspect_ratio, plotOrder, nodemodifier):
     links = df.copy()
-    nodes = computeNodePositions(df, aspect_ratio)
+    nodes = computeNodePositions(df, aspect_ratio, plotOrder, nodemodifier)
     links['source_depth'] = links['source'].map(dict(zip(nodes['name'], nodes['depth'])))
     links['target_depth'] = links['target'].map(dict(zip(nodes['name'], nodes['depth'])))
+    links['sourcePlotOrder'] = links['source'].map(dict(zip(nodes['name'], nodes['plotOrder'])))
+    links['targetPlotOrder'] = links['target'].map(dict(zip(nodes['name'], nodes['plotOrder'])))
     links['depth'] = links['target_depth'] - links['source_depth']
-    links.sort_values(['depth', 'source', 'target'], inplace=True)
+    links.sort_values(['depth', 'sourcePlotOrder', 'targetPlotOrder'], inplace=True)
     nodes['in_y'] = nodes['out_y'] = nodes['y']
     
     return nodes, links
@@ -79,8 +86,8 @@ def getNodesAndLinks(df, aspect_ratio):
 
 
 ''' Plot the sankey diagram '''
-def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier={}):
-    nodes, links = getNodesAndLinks(df, aspect_ratio)
+def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', plotOrder={}, nodemodifier={}):
+    nodes, links = getNodesAndLinks(df, aspect_ratio, plotOrder, nodemodifier)
     fig, ax = plt.subplots()
         
     # plot the links
@@ -121,6 +128,7 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
     for k in list(nodemodifier):
         nodemod[k] = nodemodifier[k].copy()
         nodemod[k].pop('label', None)
+        nodemod[k].pop('yPush', None)
         if nodemod[k] == {}:
             del nodemod[k]
     
