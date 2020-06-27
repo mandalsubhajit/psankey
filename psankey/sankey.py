@@ -180,7 +180,8 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
 ''' Usage Example '''
 if __name__ == '__main__':
     df = pd.read_csv('../data/data1.csv')
-    mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1')}
-    nodes, fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+    mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1'), 'E': dict(yPush=0)}
+    #plotOrder = {'A':1, 'B':3, 'C':2, 'D':4, 'E':5}
+    nodes, fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', plotOrder={}, nodemodifier=mod)
     plt.savefig('../output/sankey1.png', dpi=1200, transparent=False)
     plt.close()

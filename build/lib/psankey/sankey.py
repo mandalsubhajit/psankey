@@ -20,7 +20,7 @@ import pandas as pd
 ''' Compute how many predecessor nodes are "before" this node '''
 def computeNodeDepths(adj):    
     node_depth = np.zeros(adj.shape[0])
-    adjpower = (adj.to_numpy() > 0)
+    adjpower = (adj.values > 0)
     sumadj = adjpower.sum()
     while sumadj > 0:
         node_depth += (adjpower.sum(axis=1) > 0)
@@ -34,7 +34,7 @@ def computeNodeDepths(adj):
 
 
 ''' Compute the nodes & their details from dataframe of links '''
-def computeNodePositions(df, aspect_ratio):
+def computeNodePositions(df, aspect_ratio, plotOrder, nodemodifier):
     # calculate adjacency matrix
     adj = pd.crosstab(df.target, df.source)
     idx = adj.columns.union(adj.index)
@@ -43,9 +43,11 @@ def computeNodePositions(df, aspect_ratio):
     vertical_gap_quotient = 0.05
     nodes = pd.DataFrame({'name': adj.index})
     nodes['depth'] = computeNodeDepths(adj)
-    nodes.sort_values(['depth', 'name'], inplace=True)
-    max_layer_height = df.merge(nodes, how='left', left_on='source', right_on='name').groupby('depth')['value'].sum().max()
-    frame_height = (1 + len(nodes) * vertical_gap_quotient) * max_layer_height
+    nodes['plotOrder'] = nodes.name.map(plotOrder)
+    nodes.sort_values(['depth', 'plotOrder'], inplace=True)
+    out_max, out_cnt_max = df.merge(nodes, how='inner', left_on='source', right_on='name').groupby('depth')['value'].agg(['sum', 'count']).max()
+    in_max, in_cnt_max = df.merge(nodes, how='inner', left_on='target', right_on='name').groupby('depth')['value'].agg(['sum', 'count']).max()
+    frame_height = max((1 + out_cnt_max * vertical_gap_quotient) * out_max, (1 + in_cnt_max * vertical_gap_quotient) * in_max)
     frame_width = frame_height * aspect_ratio
     
     nodes['inflow'] = nodes['name'].map(df.groupby('target')['value'].sum().to_dict()).fillna(0)
@@ -56,21 +58,27 @@ def computeNodePositions(df, aspect_ratio):
     nodes['y'] = 0
     for d in range(int(nodes.depth.max())+1):
         num_nodes = np.sum(nodes.depth == d)
-        nodes.loc[nodes.depth == d, 'y'] += (nodes[nodes.depth == d].shift(1)['height'].cumsum() + np.arange(num_nodes) * vertical_gap_quotient * max_layer_height).fillna(0)
+        nodes.loc[nodes.depth == d, 'y'] += (nodes[nodes.depth == d].shift(1)['height'].cumsum() + np.arange(num_nodes) * vertical_gap_quotient * max(in_max, out_max)).fillna(0)
     #nodes['y'] = -nodes['y']-nodes['height']
+    
+    for k in list(nodemodifier):
+        if 'yPush' in nodemodifier[k]:
+            nodes.loc[nodes.name == k, 'y'] += nodemodifier[k]['yPush']
     
     return nodes
 
 
 
 ''' Get node & link details from dataframe of links '''
-def getNodesAndLinks(df, aspect_ratio):
+def getNodesAndLinks(df, aspect_ratio, plotOrder, nodemodifier):
     links = df.copy()
-    nodes = computeNodePositions(df, aspect_ratio)
+    nodes = computeNodePositions(df, aspect_ratio, plotOrder, nodemodifier)
     links['source_depth'] = links['source'].map(dict(zip(nodes['name'], nodes['depth'])))
     links['target_depth'] = links['target'].map(dict(zip(nodes['name'], nodes['depth'])))
+    links['sourcePlotOrder'] = links['source'].map(dict(zip(nodes['name'], nodes['plotOrder'])))
+    links['targetPlotOrder'] = links['target'].map(dict(zip(nodes['name'], nodes['plotOrder'])))
     links['depth'] = links['target_depth'] - links['source_depth']
-    links.sort_values(['depth', 'source', 'target'], inplace=True)
+    links.sort_values(['depth', 'sourcePlotOrder', 'targetPlotOrder'], inplace=True)
     nodes['in_y'] = nodes['out_y'] = nodes['y']
     
     return nodes, links
@@ -78,8 +86,8 @@ def getNodesAndLinks(df, aspect_ratio):
 
 
 ''' Plot the sankey diagram '''
-def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', nodemodifier={}):
-    nodes, links = getNodesAndLinks(df, aspect_ratio)
+def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecmap=None, nodecolorby='level', nodealpha=0.5, nodeedgecolor='white', plotOrder={}, nodemodifier={}):
+    nodes, links = getNodesAndLinks(df, aspect_ratio, plotOrder, nodemodifier)
     fig, ax = plt.subplots()
         
     # plot the links
@@ -108,7 +116,7 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
         else:
             linkalpha = 0.5
         
-        connector = Polygon(points, fc=linkcolor, alpha=linkalpha)
+        connector = Polygon(points, facecolor=linkcolor, alpha=linkalpha)
         ax.add_patch(connector)
         
         # plot the link labels
@@ -116,41 +124,64 @@ def sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, 
             ax.text(endx - nodes[nodes.name==link.target]['width'].min() * 0.2, endy + link['value'] / 2, str(link['value']), fontsize=labelsize, va='center', ha='right')
     
     # plot the nodes
-    cnodes = nodes[nodes.name.isin(list(nodemodifier.keys()))]
-    for i, row in cnodes.iterrows():
-        ax.add_patch(Rectangle((row['x'], row['y']), row['width'], row['height'], **nodemodifier[row['name']]))
+    nodemod = {}
+    for k in list(nodemodifier):
+        nodemod[k] = nodemodifier[k].copy()
+        nodemod[k].pop('label', None)
+        nodemod[k].pop('yPush', None)
+        if nodemod[k] == {}:
+            del nodemod[k]
     
-    unodes = nodes[~nodes.name.isin(list(nodemodifier.keys()))]
+    cnodes = nodes[nodes.name.isin(list(nodemod))]
+    for i, row in cnodes.iterrows():
+        ax.add_patch(Rectangle((row['x'], row['y']), row['width'], row['height'], **nodemod[row['name']]))
+    
+    unodes = nodes[~nodes.name.isin(list(nodemod))]
     nplots = [Rectangle((row['x'], row['y']), row['width'], row['height']) for i, row in unodes.iterrows()]
-        
+    
     if nodecolorby=='level':
-        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.depth, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif nodecolorby=='size':
-        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.height, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif nodecolorby=='index':
-        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, cmap=nodecmap, array=unodes.index, edgecolor=nodeedgecolor, alpha=nodealpha)
+    elif type(nodecolorby)==dict:
+        ncb = unodes.name.map(nodecolorby)
+        if pd.isnull(ncb).sum() > 0:
+            raise Exception('Need color mapping values for all nodes')
+        else:
+            pc = PatchCollection(nplots, cmap=nodecmap, array=ncb, edgecolor=nodeedgecolor, alpha=nodealpha)
     elif type(nodecolorby)==str:
-        pc = PatchCollection(nplots, fc=nodecolorby, ec=nodeedgecolor, alpha=nodealpha)
+        pc = PatchCollection(nplots, facecolor=nodecolorby, edgecolor=nodeedgecolor, alpha=nodealpha)
     ax.add_collection(pc)
-        
+    
     # plot the node labels
+    labelmod = {}
+    for k in list(nodemodifier):
+        if 'label' in nodemodifier[k]:
+            labelmod[k] = nodemodifier[k].copy()
+    
+    lcnodes = nodes[nodes.name.isin(list(labelmod))]
+    lunodes = nodes[~nodes.name.isin(list(labelmod))]
+    
     if nodelabels:
-        for i, row in cnodes.iterrows():
-            ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, nodemodifier[row['name']]['label'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
-        for i, row in unodes.iterrows():
+        for i, row in lcnodes.iterrows():
+            ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, labelmod[row['name']]['label'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
+        for i, row in lunodes.iterrows():
             ax.text(row['x'] + row['width'] * 1.2, row['y'] + row['height'] / 2, row['name'] + ' ' + str(row['height']), fontsize=labelsize, va='center')
     
     plt.axis('scaled')
     plt.axis('off')
     
-    return fig, ax
+    return nodes.drop(['in_y', 'out_y'], axis=1), fig, ax
 
 
 
 ''' Usage Example '''
 if __name__ == '__main__':
     df = pd.read_csv('../data/data1.csv')
-    mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1')}
-    fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', nodemodifier=mod)
+    mod = {'D': dict(facecolor='green', edgecolor='black', alpha=1, label='D1'), 'E': dict(yPush=0)}
+    #plotOrder = {'A':1, 'B':3, 'C':2, 'D':4, 'E':5}
+    nodes, fig, ax = sankey(df, aspect_ratio=4/3, nodelabels=True, linklabels=True, labelsize=5, nodecolorby='level', nodecmap='copper', nodealpha=0.5, nodeedgecolor='white', plotOrder={}, nodemodifier=mod)
     plt.savefig('../output/sankey1.png', dpi=1200, transparent=False)
     plt.close()
