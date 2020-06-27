@@ -75,10 +75,10 @@ def getNodesAndLinks(df, aspect_ratio, plotOrder, nodemodifier):
     nodes = computeNodePositions(df, aspect_ratio, plotOrder, nodemodifier)
     links['source_depth'] = links['source'].map(dict(zip(nodes['name'], nodes['depth'])))
     links['target_depth'] = links['target'].map(dict(zip(nodes['name'], nodes['depth'])))
-    links['sourcePlotOrder'] = links['source'].map(dict(zip(nodes['name'], nodes['plotOrder'])))
-    links['targetPlotOrder'] = links['target'].map(dict(zip(nodes['name'], nodes['plotOrder'])))
+    links['source_y'] = links['source'].map(dict(zip(nodes['name'], nodes['y'])))
+    links['target_y'] = links['target'].map(dict(zip(nodes['name'], nodes['y'])))
     links['depth'] = links['target_depth'] - links['source_depth']
-    links.sort_values(['depth', 'sourcePlotOrder', 'targetPlotOrder'], inplace=True)
+    links.sort_values(['depth', 'source_y', 'target_y'], inplace=True)
     nodes['in_y'] = nodes['out_y'] = nodes['y']
     
     return nodes, links
